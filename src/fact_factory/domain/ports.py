@@ -5,6 +5,7 @@ from typing import Protocol
 
 from fact_factory.domain.models import (
     Config,
+    ClearResult,
     Fact,
     FactSummary,
     Gap,
@@ -80,3 +81,7 @@ class InstanceInitializer(Protocol):
 
 class StatsReader(Protocol):
     def get_stats(self) -> Stats: ...
+
+
+class InstanceStore(Protocol):
+    def clear_all(self) -> ClearResult: ...

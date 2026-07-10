@@ -75,6 +75,13 @@ class ReindexResult:
 
 
 @dataclass(frozen=True)
+class ClearResult:
+    facts_removed: int
+    gaps_removed: int
+    query_logs_removed: int
+
+
+@dataclass(frozen=True)
 class Stats:
     fact_count: int
     gap_count: int

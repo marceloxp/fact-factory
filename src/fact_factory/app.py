@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from fact_factory.domain.models import Config
+from fact_factory.domain.services.clear_service import ClearService
 from fact_factory.domain.services.fact_service import FactService
 from fact_factory.domain.services.gap_service import GapService
 from fact_factory.domain.services.query_service import QueryService
@@ -16,6 +17,7 @@ from fact_factory.infrastructure.sqlite.repositories import (
     SqliteConnection,
     SqliteFactRepository,
     SqliteGapRepository,
+    SqliteInstanceStore,
     SqliteQueryLogRepository,
     SqliteStatsReader,
 )
@@ -30,6 +32,7 @@ class AppContext:
     query_service: QueryService
     gap_service: GapService
     stats_service: StatsService
+    clear_service: ClearService
     fact_repo: SqliteFactRepository
 
 
@@ -60,6 +63,7 @@ def build_context(instance_dir: Path) -> AppContext:
             query_repo=query_log_repo,
         )
     )
+    clear_service = ClearService(instance_store=SqliteInstanceStore(connection))
     return AppContext(
         instance_dir=instance_dir,
         config=config,
@@ -67,6 +71,7 @@ def build_context(instance_dir: Path) -> AppContext:
         query_service=query_service,
         gap_service=gap_service,
         stats_service=stats_service,
+        clear_service=clear_service,
         fact_repo=fact_repo,
     )
 

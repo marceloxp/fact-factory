@@ -140,6 +140,17 @@ def reindex(
     output.emit_reindex_result(result)
 
 
+@app.command("clear")
+@_handle_errors
+def clear(
+    text_output: bool = TEXT_OUTPUT,
+) -> None:
+    """Remove all facts, gaps, and query logs from the instance."""
+    ctx = build_context(locate_instance())
+    result = ctx.clear_service.clear_all()
+    output.emit_clear_result(result)
+
+
 @app.command("stats")
 @_handle_errors
 def stats(

@@ -2,7 +2,16 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from fact_factory.domain.models import Fact, FactSummary, Gap, QueryResult, ReindexResult, ScoredFact, Stats
+from fact_factory.domain.models import (
+    ClearResult,
+    Fact,
+    FactSummary,
+    Gap,
+    QueryResult,
+    ReindexResult,
+    ScoredFact,
+    Stats,
+)
 
 
 def fact_dict(fact: Fact | FactSummary) -> dict:
@@ -58,6 +67,14 @@ def reindex_result_dict(result: ReindexResult) -> dict:
     return {
         "reindexed": result.reindexed,
         "embedding_model": result.embedding_model,
+    }
+
+
+def clear_result_dict(result: ClearResult) -> dict:
+    return {
+        "facts_removed": result.facts_removed,
+        "gaps_removed": result.gaps_removed,
+        "query_logs_removed": result.query_logs_removed,
     }
 
 

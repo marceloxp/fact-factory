@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from fact_factory.domain.exceptions import ConflictError, NotFoundError
-from fact_factory.domain.models import Fact, FactSummary, Gap, QueryLog, ResultType, Stats
+from fact_factory.domain.models import ClearResult, Fact, FactSummary, Gap, QueryLog, ResultType, Stats
 from fact_factory.infrastructure.config import db_path, normalize_query_text
 from fact_factory.infrastructure.sqlite.schema import initialize_schema
 
@@ -292,6 +292,29 @@ class SqliteQueryLogRepository:
 
         ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))
         return [(display[key], count) for key, count in ranked[:limit]]
+
+
+class SqliteInstanceStore:
+    def __init__(self, connection_factory: SqliteConnection) -> None:
+        self._connection_factory = connection_factory
+
+    def clear_all(self) -> ClearResult:
+        with self._connection_factory.connect() as connection:
+            facts_removed = int(connection.execute("SELECT COUNT(*) FROM facts").fetchone()[0])
+            gaps_removed = int(connection.execute("SELECT COUNT(*) FROM gaps").fetchone()[0])
+            query_logs_removed = int(
+                connection.execute("SELECT COUNT(*) FROM query_logs").fetchone()[0]
+            )
+            connection.execute("DELETE FROM query_logs")
+            connection.execute("DELETE FROM gaps")
+            connection.execute("DELETE FROM facts")
+            connection.commit()
+
+        return ClearResult(
+            facts_removed=facts_removed,
+            gaps_removed=gaps_removed,
+            query_logs_removed=query_logs_removed,
+        )
 
 
 class SqliteStatsReader:
