@@ -1,0 +1,22 @@
+[project]
+name = "fact-factory"
+version = "0.1.0"
+description = "Atomic fact storage and retrieval for AI assistants"
+readme = "README.md"
+authors = [
+    { name = "Marcelo XP", email = "marceloxp@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "numpy>=2.3.1",
+    "rich>=14.0.0",
+    "typer>=0.16.0",
+]
+
+[project.scripts]
+fact = "fact_factory.cli.main:app"
+
+[build-system]
+requires = ["uv_build>=0.11.19,<0.12.0"]
+build-backend = "uv_build"

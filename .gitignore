@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+build/
+
+# Fact-Factory instances (local dev)
+.fact-factory/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+DESCRIPTION.md
