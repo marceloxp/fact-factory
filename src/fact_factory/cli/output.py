@@ -32,10 +32,17 @@ def print_error(message: str) -> None:
 
 
 def emit_fact_added(fact: Fact) -> None:
+    emit_facts_added([fact])
+
+
+def emit_facts_added(facts: list[Fact]) -> None:
     if is_text_mode():
-        _text_fact_added(fact)
+        _text_facts_added(facts)
         return
-    _print_json(serialize.fact_dict(fact))
+    if len(facts) == 1:
+        _print_json(serialize.fact_dict(facts[0]))
+        return
+    _print_json(serialize.facts_added_dict(facts))
 
 
 def emit_query_result(result: QueryResult) -> None:
@@ -137,8 +144,18 @@ def _text_success(message: str) -> None:
 
 
 def _text_fact_added(fact: Fact) -> None:
-    _text_success(f"Fact added: {fact.id}")
-    console.print(fact.text)
+    _text_facts_added([fact])
+
+
+def _text_facts_added(facts: list[Fact]) -> None:
+    if len(facts) == 1:
+        _text_success(f"Fact added: {facts[0].id}")
+        console.print(facts[0].text)
+        return
+
+    _text_success(f"Added {len(facts)} fact(s)")
+    for fact in facts:
+        console.print(f"- {fact.id}: {fact.text}")
 
 
 def _text_reindex_result(result: ReindexResult) -> None:

@@ -24,6 +24,13 @@ def fact_dict(fact: Fact | FactSummary) -> dict:
     }
 
 
+def facts_added_dict(facts: list[Fact]) -> dict:
+    return {
+        "added": len(facts),
+        "facts": [fact_dict(fact) for fact in facts],
+    }
+
+
 def scored_fact_dict(item: ScoredFact) -> dict:
     payload = fact_dict(item.fact)
     payload["score"] = round(item.score, 6)

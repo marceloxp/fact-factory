@@ -18,5 +18,9 @@ class ConflictError(FactFactoryError):
     """Operation conflicts with current state."""
 
 
+class ValidationError(FactFactoryError):
+    """Input validation failed."""
+
+
 class EmbeddingError(FactFactoryError):
     """Embedding generation failed."""

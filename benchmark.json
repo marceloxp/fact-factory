@@ -58,15 +58,15 @@
     },
     {
       "id": "f14",
-      "text": "Facts table columns: id (UUID), text, embedding (float32 BLOB), confidence, tags (JSON array), created_at (ISO timestamp)."
+      "text": "Facts table columns: id (UUID), text, embedding (float32 BLOB), confidence, tags (JSON array), created_at (ISO timestamp), optional deleted_at for soft-delete."
     },
     {
       "id": "f15",
-      "text": "Embeddings are generated once via Ollama POST /api/embeddings at fact creation and stored permanently in SQLite."
+      "text": "Embeddings are generated via Ollama POST /api/embeddings at fact creation and stored in SQLite; run fact reindex after changing embedding_model in config.json."
     },
     {
       "id": "f16",
-      "text": "Gaps table stores unanswered questions with id, question, created_at, optional resolved_at, and optional resolved_fact_id."
+      "text": "Gaps table stores unanswered questions with id, question, created_at, optional resolved_at, optional resolved_fact_id, and optional deleted_at for soft-delete."
     },
     {
       "id": "f17",
@@ -74,7 +74,7 @@
     },
     {
       "id": "f18",
-      "text": "fact query flow: embed question, load all facts, hybrid rerank, return matches >= min_relevance_score, else auto-create gap."
+      "text": "fact query flow: embed question, load all active facts, hybrid rerank, return matches >= min_relevance_score, else auto-create gap."
     },
     {
       "id": "f19",
@@ -98,11 +98,11 @@
     },
     {
       "id": "f24",
-      "text": "Commands add, query, search, list, remove, stats, and all gap subcommands output JSON to stdout by default."
+      "text": "Commands add, query, search, list, remove, reindex, clear, stats, and all gap subcommands output JSON to stdout by default. fact clear permanently deletes all data after interactive confirmation."
     },
     {
       "id": "f25",
-      "text": "Pass --text to add, query, search, list, remove, stats, or gap commands for human-readable Rich table output."
+      "text": "Pass --text to add, query, search, list, remove, reindex, clear, stats, or gap commands for human-readable Rich table output."
     },
     {
       "id": "f26",
@@ -110,15 +110,15 @@
     },
     {
       "id": "f27",
-      "text": "fact add accepts positional fact text plus optional --confidence (0-1, default 1.0) and --tags (comma-separated)."
+      "text": "fact add accepts one or more positional fact texts plus optional --confidence (0-1, default 1.0) and --tags (comma-separated, applied to all)."
     },
     {
       "id": "f28",
-      "text": "fact remove deletes a fact by UUID and sets resolved_fact_id to NULL on gaps that referenced it."
+      "text": "fact remove soft-deletes a fact by UUID (sets deleted_at); use --force for permanent deletion. Soft-delete hides the fact from queries but keeps resolved_fact_id on referencing gaps."
     },
     {
       "id": "f29",
-      "text": "fact gap resolve creates a new fact and marks the gap resolved; fact gap remove only works on open (unresolved) gaps."
+      "text": "fact gap resolve creates a new fact and marks the gap resolved; fact gap remove soft-deletes open gaps (--force for permanent deletion) and does not work on resolved gaps."
     },
     {
       "id": "f30",

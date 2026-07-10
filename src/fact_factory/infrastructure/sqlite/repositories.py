@@ -53,6 +53,30 @@ class SqliteFactRepository:
             )
             connection.commit()
 
+    def add_many(self, facts: list[Fact]) -> None:
+        if not facts:
+            return
+
+        with self._connection_factory.connect() as connection:
+            connection.executemany(
+                """
+                INSERT INTO facts (id, text, embedding, confidence, tags, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    (
+                        fact.id,
+                        fact.text,
+                        fact.embedding,
+                        fact.confidence,
+                        json.dumps(fact.tags),
+                        _format_datetime(fact.created_at),
+                    )
+                    for fact in facts
+                ],
+            )
+            connection.commit()
+
     def get_by_id(self, fact_id: str) -> Fact | None:
         with self._connection_factory.connect() as connection:
             row = connection.execute(

@@ -118,7 +118,7 @@ Each instance has a `config.json` file:
 | Command | Description |
 |---------|-------------|
 | `fact create` | Create a new instance in the current directory |
-| `fact add "..."` | Add a fact (`--confidence`, `--tags`) |
+| `fact add "..." ["..." ...]` | Add one or more facts (`--confidence`, `--tags` apply to all) |
 | `fact query "..."` | Semantic search with hybrid re-ranking |
 | `fact search "term" [page]` | Plain-text search |
 | `fact list [page]` | List facts |

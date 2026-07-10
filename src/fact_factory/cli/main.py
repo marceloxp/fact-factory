@@ -61,16 +61,23 @@ def create(
 @app.command("add")
 @_handle_errors
 def add(
-    fact_text: str = typer.Argument(..., help="Fact text to store."),
+    fact_texts: list[str] = typer.Argument(
+        ...,
+        help="One or more fact texts to store.",
+    ),
     confidence: float = typer.Option(1.0, "--confidence", "-c", min=0.0, max=1.0),
     tags: str | None = typer.Option(None, "--tags", help="Comma-separated tags."),
     text_output: bool = TEXT_OUTPUT,
 ) -> None:
-    """Add a new fact to the knowledge base."""
+    """Add one or more facts to the knowledge base."""
     ctx = build_context(locate_instance())
     tag_list = _parse_tags(tags)
-    fact = ctx.fact_service.add_fact(text=fact_text, confidence=confidence, tags=tag_list)
-    output.emit_fact_added(fact)
+    facts = ctx.fact_service.add_facts(
+        texts=fact_texts,
+        confidence=confidence,
+        tags=tag_list,
+    )
+    output.emit_facts_added(facts)
 
 
 @app.command("query")
