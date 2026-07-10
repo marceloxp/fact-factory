@@ -122,14 +122,14 @@ Each instance has a `config.json` file:
 | `fact query "..."` | Semantic search with hybrid re-ranking |
 | `fact search "term" [page]` | Plain-text search |
 | `fact list [page]` | List facts |
-| `fact remove <uuid>` | Remove a fact by UUID |
+| `fact remove <uuid>` | Soft-delete a fact (`--force` for permanent deletion) |
 | `fact reindex` | Re-embed all facts with the configured embedding model |
-| `fact clear` | Remove all facts, gaps, and query logs |
+| `fact clear` | Permanently remove all facts, gaps, and query logs (asks for confirmation) |
 | `fact stats` | Usage statistics |
 | `fact gap list` | List open gaps |
 | `fact gap show <uuid>` | Show gap details |
 | `fact gap resolve <uuid> "fact text"` | Resolve a gap by adding a fact |
-| `fact gap remove <uuid>` | Remove an open gap |
+| `fact gap remove <uuid>` | Soft-delete an open gap (`--force` for permanent deletion) |
 
 ## Agent workflow
 

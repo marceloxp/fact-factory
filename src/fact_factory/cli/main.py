@@ -15,6 +15,11 @@ TEXT_OUTPUT = typer.Option(
     "--text",
     help="Human-readable output instead of JSON.",
 )
+FORCE_OPTION = typer.Option(
+    False,
+    "--force",
+    help="Permanently delete the record.",
+)
 
 app = typer.Typer(
     name="fact",
@@ -121,12 +126,13 @@ def list_facts(
 @_handle_errors
 def remove(
     fact_id: str = typer.Argument(..., help="Fact UUID."),
+    force: bool = FORCE_OPTION,
     text_output: bool = TEXT_OUTPUT,
 ) -> None:
-    """Remove a fact by UUID."""
+    """Remove a fact by UUID (soft-delete by default)."""
     ctx = build_context(locate_instance())
-    ctx.fact_service.remove_fact(fact_id)
-    output.emit_fact_removed(fact_id)
+    ctx.fact_service.remove_fact(fact_id, force=force)
+    output.emit_fact_removed(fact_id, permanent=force)
 
 
 @app.command("reindex")
@@ -146,6 +152,10 @@ def clear(
     text_output: bool = TEXT_OUTPUT,
 ) -> None:
     """Remove all facts, gaps, and query logs from the instance."""
+    typer.confirm(
+        "This permanently deletes all facts, gaps, and query logs. Continue?",
+        abort=True,
+    )
     ctx = build_context(locate_instance())
     result = ctx.clear_service.clear_all()
     output.emit_clear_result(result)
@@ -199,12 +209,13 @@ def gap_resolve(
 @_handle_errors
 def gap_remove(
     gap_id: str = typer.Argument(..., help="Gap UUID."),
+    force: bool = FORCE_OPTION,
     text_output: bool = TEXT_OUTPUT,
 ) -> None:
-    """Remove an open gap."""
+    """Remove an open gap (soft-delete by default)."""
     ctx = build_context(locate_instance())
-    ctx.gap_service.remove(gap_id)
-    output.emit_gap_removed(gap_id)
+    ctx.gap_service.remove(gap_id, force=force)
+    output.emit_gap_removed(gap_id, permanent=force)
 
 
 def _parse_tags(tags: str | None) -> list[str]:

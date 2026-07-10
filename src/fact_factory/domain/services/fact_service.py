@@ -33,10 +33,10 @@ class FactService:
         self._fact_repo.add(fact)
         return fact
 
-    def remove_fact(self, fact_id: str) -> None:
-        if self._fact_repo.get_by_id(fact_id) is None:
+    def remove_fact(self, fact_id: str, *, force: bool = False) -> None:
+        if not force and self._fact_repo.get_by_id(fact_id) is None:
             raise NotFoundError(f"Fact not found: {fact_id}")
-        self._fact_repo.remove(fact_id)
+        self._fact_repo.remove(fact_id, force=force)
 
     def reindex_facts(self, embedding_model: str) -> ReindexResult:
         facts = self._fact_repo.list_all_with_embeddings()

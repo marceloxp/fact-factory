@@ -11,6 +11,9 @@ from fact_factory.domain.models import ClearResult, Fact, FactSummary, Gap, Quer
 from fact_factory.infrastructure.config import db_path, normalize_query_text
 from fact_factory.infrastructure.sqlite.schema import initialize_schema
 
+_ACTIVE_FACT = "deleted_at IS NULL"
+_ACTIVE_GAP = "deleted_at IS NULL"
+
 
 class SqliteConnection:
     def __init__(self, instance_dir: Path) -> None:
@@ -53,7 +56,7 @@ class SqliteFactRepository:
     def get_by_id(self, fact_id: str) -> Fact | None:
         with self._connection_factory.connect() as connection:
             row = connection.execute(
-                "SELECT * FROM facts WHERE id = ?",
+                f"SELECT * FROM facts WHERE id = ? AND {_ACTIVE_FACT}",
                 (fact_id,),
             ).fetchone()
         return _row_to_fact(row) if row else None
@@ -61,18 +64,21 @@ class SqliteFactRepository:
     def list_all_with_embeddings(self) -> list[Fact]:
         with self._connection_factory.connect() as connection:
             rows = connection.execute(
-                "SELECT * FROM facts ORDER BY created_at DESC"
+                f"SELECT * FROM facts WHERE {_ACTIVE_FACT} ORDER BY created_at DESC"
             ).fetchall()
         return [_row_to_fact(row) for row in rows]
 
     def list_page(self, page: int, page_size: int) -> tuple[list[FactSummary], int]:
         offset = max(page - 1, 0) * page_size
         with self._connection_factory.connect() as connection:
-            total = connection.execute("SELECT COUNT(*) FROM facts").fetchone()[0]
+            total = connection.execute(
+                f"SELECT COUNT(*) FROM facts WHERE {_ACTIVE_FACT}"
+            ).fetchone()[0]
             rows = connection.execute(
-                """
+                f"""
                 SELECT id, text, confidence, tags, created_at
                 FROM facts
+                WHERE {_ACTIVE_FACT}
                 ORDER BY created_at DESC
                 LIMIT ? OFFSET ?
                 """,
@@ -85,14 +91,14 @@ class SqliteFactRepository:
         pattern = f"%{term}%"
         with self._connection_factory.connect() as connection:
             total = connection.execute(
-                "SELECT COUNT(*) FROM facts WHERE text LIKE ? COLLATE NOCASE",
+                f"SELECT COUNT(*) FROM facts WHERE {_ACTIVE_FACT} AND text LIKE ? COLLATE NOCASE",
                 (pattern,),
             ).fetchone()[0]
             rows = connection.execute(
-                """
+                f"""
                 SELECT id, text, confidence, tags, created_at
                 FROM facts
-                WHERE text LIKE ? COLLATE NOCASE
+                WHERE {_ACTIVE_FACT} AND text LIKE ? COLLATE NOCASE
                 ORDER BY created_at DESC
                 LIMIT ? OFFSET ?
                 """,
@@ -102,28 +108,40 @@ class SqliteFactRepository:
 
     def count(self) -> int:
         with self._connection_factory.connect() as connection:
-            return int(connection.execute("SELECT COUNT(*) FROM facts").fetchone()[0])
+            return int(
+                connection.execute(
+                    f"SELECT COUNT(*) FROM facts WHERE {_ACTIVE_FACT}"
+                ).fetchone()[0]
+            )
 
-    def remove(self, fact_id: str) -> None:
+    def remove(self, fact_id: str, *, force: bool = False) -> None:
         with self._connection_factory.connect() as connection:
-            row = connection.execute(
-                "SELECT id FROM facts WHERE id = ?",
-                (fact_id,),
-            ).fetchone()
+            if force:
+                row = connection.execute(
+                    "SELECT id, deleted_at FROM facts WHERE id = ?",
+                    (fact_id,),
+                ).fetchone()
+            else:
+                row = connection.execute(
+                    f"SELECT id, deleted_at FROM facts WHERE id = ? AND {_ACTIVE_FACT}",
+                    (fact_id,),
+                ).fetchone()
             if row is None:
                 raise NotFoundError(f"Fact not found: {fact_id}")
 
-            connection.execute(
-                "UPDATE gaps SET resolved_fact_id = NULL WHERE resolved_fact_id = ?",
-                (fact_id,),
-            )
-            connection.execute("DELETE FROM facts WHERE id = ?", (fact_id,))
+            if force:
+                connection.execute("DELETE FROM facts WHERE id = ?", (fact_id,))
+            else:
+                connection.execute(
+                    "UPDATE facts SET deleted_at = ? WHERE id = ?",
+                    (_format_datetime(utc_now()), fact_id),
+                )
             connection.commit()
 
     def update_embedding(self, fact_id: str, embedding: bytes) -> None:
         with self._connection_factory.connect() as connection:
             row = connection.execute(
-                "SELECT id FROM facts WHERE id = ?",
+                f"SELECT id FROM facts WHERE id = ? AND {_ACTIVE_FACT}",
                 (fact_id,),
             ).fetchone()
             if row is None:
@@ -160,7 +178,7 @@ class SqliteGapRepository:
     def get_by_id(self, gap_id: str) -> Gap | None:
         with self._connection_factory.connect() as connection:
             row = connection.execute(
-                "SELECT * FROM gaps WHERE id = ?",
+                f"SELECT * FROM gaps WHERE id = ? AND {_ACTIVE_GAP}",
                 (gap_id,),
             ).fetchone()
         return _row_to_gap(row) if row else None
@@ -168,9 +186,9 @@ class SqliteGapRepository:
     def list_open(self) -> list[Gap]:
         with self._connection_factory.connect() as connection:
             rows = connection.execute(
-                """
+                f"""
                 SELECT * FROM gaps
-                WHERE resolved_at IS NULL
+                WHERE {_ACTIVE_GAP} AND resolved_at IS NULL
                 ORDER BY created_at DESC
                 """
             ).fetchall()
@@ -179,10 +197,10 @@ class SqliteGapRepository:
     def resolve(self, gap_id: str, resolved_at: datetime, resolved_fact_id: str) -> None:
         with self._connection_factory.connect() as connection:
             updated = connection.execute(
-                """
+                f"""
                 UPDATE gaps
                 SET resolved_at = ?, resolved_fact_id = ?
-                WHERE id = ? AND resolved_at IS NULL
+                WHERE id = ? AND {_ACTIVE_GAP} AND resolved_at IS NULL
                 """,
                 (_format_datetime(resolved_at), resolved_fact_id, gap_id),
             ).rowcount
@@ -193,28 +211,45 @@ class SqliteGapRepository:
                 raise NotFoundError(f"Gap not found: {gap_id}")
             raise ConflictError(f"Gap is already resolved: {gap_id}")
 
-    def remove(self, gap_id: str) -> None:
+    def remove(self, gap_id: str, *, force: bool = False) -> None:
         with self._connection_factory.connect() as connection:
-            row = connection.execute(
-                "SELECT resolved_at FROM gaps WHERE id = ?",
-                (gap_id,),
-            ).fetchone()
+            if force:
+                row = connection.execute(
+                    "SELECT resolved_at, deleted_at FROM gaps WHERE id = ?",
+                    (gap_id,),
+                ).fetchone()
+            else:
+                row = connection.execute(
+                    f"SELECT resolved_at, deleted_at FROM gaps WHERE id = ? AND {_ACTIVE_GAP}",
+                    (gap_id,),
+                ).fetchone()
             if row is None:
                 raise NotFoundError(f"Gap not found: {gap_id}")
             if row["resolved_at"] is not None:
                 raise ConflictError(f"Cannot remove a resolved gap: {gap_id}")
-            connection.execute("DELETE FROM gaps WHERE id = ?", (gap_id,))
+
+            if force:
+                connection.execute("DELETE FROM gaps WHERE id = ?", (gap_id,))
+            else:
+                connection.execute(
+                    "UPDATE gaps SET deleted_at = ? WHERE id = ?",
+                    (_format_datetime(utc_now()), gap_id),
+                )
             connection.commit()
 
     def count(self) -> int:
         with self._connection_factory.connect() as connection:
-            return int(connection.execute("SELECT COUNT(*) FROM gaps").fetchone()[0])
+            return int(
+                connection.execute(
+                    f"SELECT COUNT(*) FROM gaps WHERE {_ACTIVE_GAP}"
+                ).fetchone()[0]
+            )
 
     def count_open(self) -> int:
         with self._connection_factory.connect() as connection:
             return int(
                 connection.execute(
-                    "SELECT COUNT(*) FROM gaps WHERE resolved_at IS NULL"
+                    f"SELECT COUNT(*) FROM gaps WHERE {_ACTIVE_GAP} AND resolved_at IS NULL"
                 ).fetchone()[0]
             )
 
@@ -222,17 +257,17 @@ class SqliteGapRepository:
         with self._connection_factory.connect() as connection:
             return int(
                 connection.execute(
-                    "SELECT COUNT(*) FROM gaps WHERE resolved_at IS NOT NULL"
+                    f"SELECT COUNT(*) FROM gaps WHERE {_ACTIVE_GAP} AND resolved_at IS NOT NULL"
                 ).fetchone()[0]
             )
 
     def top_open_subjects(self, limit: int) -> list[tuple[str, int]]:
         with self._connection_factory.connect() as connection:
             rows = connection.execute(
-                """
+                f"""
                 SELECT question, COUNT(*) AS total
                 FROM gaps
-                WHERE resolved_at IS NULL
+                WHERE {_ACTIVE_GAP} AND resolved_at IS NULL
                 GROUP BY question
                 ORDER BY total DESC, question ASC
                 LIMIT ?

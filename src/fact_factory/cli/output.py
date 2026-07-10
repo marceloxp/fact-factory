@@ -58,11 +58,14 @@ def emit_fact_page(
     _print_json(serialize.fact_page_dict(facts, page, page_size, total))
 
 
-def emit_fact_removed(fact_id: str) -> None:
+def emit_fact_removed(fact_id: str, *, permanent: bool = False) -> None:
     if is_text_mode():
-        _text_success(f"Fact removed: {fact_id}")
+        if permanent:
+            _text_success(f"Fact permanently removed: {fact_id}")
+        else:
+            _text_success(f"Fact soft-deleted: {fact_id}")
         return
-    _print_json({"id": fact_id, "removed": True})
+    _print_json({"id": fact_id, "removed": True, "permanent": permanent})
 
 
 def emit_reindex_result(result: ReindexResult) -> None:
@@ -107,11 +110,14 @@ def emit_gap_resolved(gap: Gap, fact: Fact) -> None:
     _print_json({"gap": serialize.gap_dict(gap), "fact": serialize.fact_dict(fact)})
 
 
-def emit_gap_removed(gap_id: str) -> None:
+def emit_gap_removed(gap_id: str, *, permanent: bool = False) -> None:
     if is_text_mode():
-        _text_success(f"Gap removed: {gap_id}")
+        if permanent:
+            _text_success(f"Gap permanently removed: {gap_id}")
+        else:
+            _text_success(f"Gap soft-deleted: {gap_id}")
         return
-    _print_json({"id": gap_id, "removed": True})
+    _print_json({"id": gap_id, "removed": True, "permanent": permanent})
 
 
 def print_instance_created(path: str) -> None:

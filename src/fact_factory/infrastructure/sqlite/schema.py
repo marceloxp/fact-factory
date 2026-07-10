@@ -17,7 +17,8 @@ def initialize_schema(connection: sqlite3.Connection) -> None:
             embedding BLOB NOT NULL,
             confidence REAL NOT NULL,
             tags TEXT NOT NULL DEFAULT '[]',
-            created_at TEXT NOT NULL
+            created_at TEXT NOT NULL,
+            deleted_at TEXT
         );
 
         CREATE TABLE IF NOT EXISTS gaps (
@@ -26,6 +27,7 @@ def initialize_schema(connection: sqlite3.Connection) -> None:
             created_at TEXT NOT NULL,
             resolved_at TEXT,
             resolved_fact_id TEXT,
+            deleted_at TEXT,
             FOREIGN KEY (resolved_fact_id) REFERENCES facts(id)
         );
 
@@ -40,5 +42,12 @@ def initialize_schema(connection: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_facts_created_at ON facts(created_at);
         CREATE INDEX IF NOT EXISTS idx_gaps_resolved_at ON gaps(resolved_at);
         CREATE INDEX IF NOT EXISTS idx_query_logs_created_at ON query_logs(created_at);
+
+        CREATE INDEX IF NOT EXISTS idx_facts_active_created_at
+            ON facts(created_at) WHERE deleted_at IS NULL;
+        CREATE INDEX IF NOT EXISTS idx_gaps_active_created_at
+            ON gaps(created_at) WHERE deleted_at IS NULL;
+        CREATE INDEX IF NOT EXISTS idx_gaps_active_open
+            ON gaps(created_at) WHERE deleted_at IS NULL AND resolved_at IS NULL;
         """
     )

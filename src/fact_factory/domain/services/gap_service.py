@@ -36,5 +36,5 @@ class GapService:
         assert resolved is not None
         return resolved, fact
 
-    def remove(self, gap_id: str) -> None:
-        self._gap_repo.remove(gap_id)
+    def remove(self, gap_id: str, *, force: bool = False) -> None:
+        self._gap_repo.remove(gap_id, force=force)
