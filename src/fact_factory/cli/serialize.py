@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from fact_factory.domain.models import Fact, FactSummary, Gap, QueryResult, ScoredFact, Stats
+from fact_factory.domain.models import Fact, FactSummary, Gap, QueryResult, ReindexResult, ScoredFact, Stats
 
 
 def fact_dict(fact: Fact | FactSummary) -> dict:
@@ -51,6 +51,13 @@ def fact_page_dict(
         "total": total,
         "pages": pages,
         "facts": [fact_dict(fact) for fact in facts],
+    }
+
+
+def reindex_result_dict(result: ReindexResult) -> dict:
+    return {
+        "reindexed": result.reindexed,
+        "embedding_model": result.embedding_model,
     }
 
 

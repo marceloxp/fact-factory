@@ -129,6 +129,17 @@ def remove(
     output.emit_fact_removed(fact_id)
 
 
+@app.command("reindex")
+@_handle_errors
+def reindex(
+    text_output: bool = TEXT_OUTPUT,
+) -> None:
+    """Re-embed all facts using the configured embedding model."""
+    ctx = build_context(locate_instance())
+    result = ctx.fact_service.reindex_facts(ctx.config.embedding_model)
+    output.emit_reindex_result(result)
+
+
 @app.command("stats")
 @_handle_errors
 def stats(

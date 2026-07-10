@@ -9,7 +9,7 @@ from rich.table import Table
 
 from fact_factory.cli import serialize
 from fact_factory.cli.context import is_text_mode
-from fact_factory.domain.models import Fact, FactSummary, Gap, QueryResult, ScoredFact, Stats
+from fact_factory.domain.models import Fact, FactSummary, Gap, QueryResult, ReindexResult, ScoredFact, Stats
 
 console = Console()
 error_console = Console(file=sys.stderr)
@@ -54,6 +54,13 @@ def emit_fact_removed(fact_id: str) -> None:
         _text_success(f"Fact removed: {fact_id}")
         return
     _print_json({"id": fact_id, "removed": True})
+
+
+def emit_reindex_result(result: ReindexResult) -> None:
+    if is_text_mode():
+        _text_reindex_result(result)
+        return
+    _print_json(serialize.reindex_result_dict(result))
 
 
 def emit_stats(stats: Stats) -> None:
@@ -110,6 +117,12 @@ def _text_success(message: str) -> None:
 def _text_fact_added(fact: Fact) -> None:
     _text_success(f"Fact added: {fact.id}")
     console.print(fact.text)
+
+
+def _text_reindex_result(result: ReindexResult) -> None:
+    _text_success(
+        f"Reindexed {result.reindexed} fact(s) with {result.embedding_model}"
+    )
 
 
 def _text_query_result(result: QueryResult) -> None:

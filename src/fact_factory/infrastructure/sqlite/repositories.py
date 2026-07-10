@@ -120,6 +120,21 @@ class SqliteFactRepository:
             connection.execute("DELETE FROM facts WHERE id = ?", (fact_id,))
             connection.commit()
 
+    def update_embedding(self, fact_id: str, embedding: bytes) -> None:
+        with self._connection_factory.connect() as connection:
+            row = connection.execute(
+                "SELECT id FROM facts WHERE id = ?",
+                (fact_id,),
+            ).fetchone()
+            if row is None:
+                raise NotFoundError(f"Fact not found: {fact_id}")
+
+            connection.execute(
+                "UPDATE facts SET embedding = ? WHERE id = ?",
+                (embedding, fact_id),
+            )
+            connection.commit()
+
 
 class SqliteGapRepository:
     def __init__(self, connection_factory: SqliteConnection) -> None:

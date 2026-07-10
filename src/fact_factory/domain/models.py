@@ -69,6 +69,12 @@ class QueryResult:
 
 
 @dataclass(frozen=True)
+class ReindexResult:
+    reindexed: int
+    embedding_model: str
+
+
+@dataclass(frozen=True)
 class Stats:
     fact_count: int
     gap_count: int

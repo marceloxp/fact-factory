@@ -47,7 +47,7 @@ Verify:
 fact --help
 ```
 
-By default, `add`, `query`, `search`, `list`, `remove`, `stats`, and `gap` commands print **JSON** to stdout. Use `--text` for human-readable tables:
+By default, `add`, `query`, `search`, `list`, `remove`, `reindex`, `stats`, and `gap` commands print **JSON** to stdout. Use `--text` for human-readable tables:
 
 ```bash
 fact list 1 --text
@@ -111,6 +111,7 @@ Each instance has a `config.json` file:
 
 - `min_relevance_score` controls when a query is considered answered vs. when a gap is created.
 - Fact and query text may be in English or Portuguese.
+- After changing `embedding_model`, run `fact reindex` to re-embed existing facts.
 
 ## CLI reference
 
@@ -122,6 +123,7 @@ Each instance has a `config.json` file:
 | `fact search "term" [page]` | Plain-text search |
 | `fact list [page]` | List facts |
 | `fact remove <uuid>` | Remove a fact by UUID |
+| `fact reindex` | Re-embed all facts with the configured embedding model |
 | `fact stats` | Usage statistics |
 | `fact gap list` | List open gaps |
 | `fact gap show <uuid>` | Show gap details |
