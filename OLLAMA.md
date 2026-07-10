@@ -1,9 +1,9 @@
-# OLLAMA — Garantir o runtime de embeddings (para a IA)
+# OLLAMA — Ensure the embedding runtime (for the AI)
 
-- URL padrão do Ollama: `http://localhost:11434`
-- Modelo de embedding padrão do fact-factory: `qwen3-embedding:0.6b`.
+- Default Ollama URL: `http://localhost:11434`
+- Default fact-factory embedding model: `qwen3-embedding:0.6b`.
 
-## Testando o embedding
+## Testing embeddings
 
 ```bash
 curl -fsS http://localhost:11434/api/embeddings \
@@ -11,28 +11,28 @@ curl -fsS http://localhost:11434/api/embeddings \
     -d '{"model": "qwen3-embedding:0.6b", "prompt": "test"}'
 ```
 
-## Instalação do Ollama
+## Installing Ollama
 
-Instale se o comando `ollama` não existir (escolha pelo SO):
+Install if the `ollama` command is missing (choose by OS):
 
-| SO            | Comando                                          |
+| OS            | Command                                          |
 | ------------- | ------------------------------------------------ |
 | Linux / macOS | `curl -fsSL https://ollama.com/install.sh \| sh` |
 | Windows       | `irm https://ollama.com/install.ps1 \| iex`      |
 
-## Subindo o servidor Ollama
+## Starting the Ollama server
 
 ```bash
 ollama serve
 ```
 
-## Baixar o modelo - caso não exista
+## Pull the model — if missing
 
 ```bash
 ollama pull qwen3-embedding:0.6b
 ```
 
-## Host/porta/modelo diferentes
+## Different host/port/model
 
-Talvez o usuário tenha um Ollama com configurações fora do padrão, se você
-não conseguir resolver sozinho de maneira rápida, pergunte ao usuário.
+The user may have Ollama configured outside defaults. If you cannot resolve it quickly
+on your own, ask the user.

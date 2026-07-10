@@ -1,3 +1,3 @@
-# fact-factory — Doutrina de uso para agentes de IA
+# fact-factory — Usage doctrine for AI agents
 
 See [CLAUDE.md](CLAUDE.md)

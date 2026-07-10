@@ -1,86 +1,86 @@
-# fact-factory — Doutrina de uso para agentes de IA
+# fact-factory — Usage doctrine for AI agents
 
-> **Fonte canônica.** Este é o texto-base ("a cola"). Os demais formatos em
-> `templates/` (custom agent, trecho de memória) apenas embrulham esta doutrina.
-> Ao alterar o comportamento esperado, edite **aqui** e propague.
+> **Canonical source.** This is the base text ("the glue"). Other formats in
+> `templates/` (custom agent, memory snippet) only wrap this doctrine.
+> When changing expected behavior, edit **here** and propagate.
 
-## O que é
+## What it is
 
-Fact-Factory é uma base de conhecimento **offline** de **fatos atômicos** sobre um
-produto — código-fonte, banco de dados, regras de negócio, operação. Ela existe para
-você **consultar antes** de varrer código ou banco. Um projeto tem uma instância
-quando existe um diretório `.fact-factory/`. A interface é o comando `fact`.
+Fact-Factory is an **offline** knowledge base of **atomic facts** about a
+product — source code, database, business rules, operations. It exists so you
+**query before** scanning code or the database. A project has an instance
+when a `.fact-factory/` directory exists. The interface is the `fact` command.
 
-## A regra de ouro
+## The golden rule
 
-**Pergunte, não liste.** Recupere por intenção com `fact query "<pergunta específica>"`.
-**Nunca** use `fact list` para "ter uma visão geral": em produção há milhares de fatos
-de centenas de assuntos; listar não cabe no contexto e devolve tudo sem relevância —
-exatamente o problema que a ferramenta resolve. `list` é o equivalente a ler o código
-inteiro para "entender o sistema".
+**Ask, don't list.** Retrieve by intent with `fact query "<specific question>"`.
+**Never** use `fact list` to "get an overview": in production there are thousands of facts
+across hundreds of topics; listing does not fit in context and returns everything without
+relevance — exactly the problem this tool solves. `list` is the equivalent of reading the
+entire codebase to "understand the system".
 
-**Princípio: evitar a busca profunda, não proibi-la.** O que a doutrina pede que você
-**evite** é varrer o código-fonte ou o banco à procura de fatos que a base já responde
-de graça — não é uma proibição de explorar. Quando a base não sabe (retorna `gap`) ou o
-assunto é genuinamente novo, ir a fundo na fonte é exatamente o certo. A doutrina poupa
-trabalho redundante; não amarra suas mãos. (Isto é diferente da regra dura acima: para
-`fact list` como "visão geral" a resposta é sempre não.)
+**Principle: avoid deep discovery, don't forbid it.** What the doctrine asks you to
+**avoid** is scanning source code or the database for facts the base already answers
+for free — it is not a ban on exploration. When the base does not know (returns `gap`) or
+the topic is genuinely new, going deep into the source is exactly right. The doctrine saves
+redundant work; it does not tie your hands. (This is different from the hard rule above:
+for `fact list` as "overview" the answer is always no.)
 
-## Fluxo de trabalho
+## Workflow
 
-1. **Decomponha** a tarefa em perguntas concretas ("qual tabela guarda X?", "qual a
-   regra de comissão?", "onde começa o fluxo Y?"). Sem intenção específica não há o
-   que recuperar bem — nem aqui, nem no código.
-2. **Consulte** cada pergunta: `fact query "..."`.
-3. **Leia** os fatos retornados. Vêm rankeados por `score`, acima do limiar de
-   relevância. São curados — trate-os como verdade de base.
-4. **Decida pelo resultado:**
-   - **Veio fato(s):** use-os. Não re-derive do código o que a base já afirma, salvo
-     motivo claro para desconfiar.
-   - **Veio `gap`** (`"facts": []`): a ferramenta registrou automaticamente uma
-     lacuna. **Esse é o sinal** de que a base não sabe — agora sim vá ao código/banco
-     investigar.
-5. **Devolva o aprendizado** (opcional, mas é o que torna a base mais inteligente): ao
-   descobrir a resposta explorando, grave-a com `fact add` — ou `fact gap resolve`
-   para fechar a lacuna que você acabou de responder. O próximo agente encontra por
-   `query` e não repete a exploração.
+1. **Break down** the task into concrete questions ("which table stores X?", "what is the
+   commission rule?", "where does flow Y start?"). Without specific intent there is nothing
+   to retrieve well — neither here nor in the code.
+2. **Query** each question: `fact query "..."`.
+3. **Read** the returned facts. They come ranked by `score`, above the relevance
+   threshold. They are curated — treat them as baseline truth.
+4. **Decide from the result:**
+   - **Fact(s) returned:** use them. Do not re-derive from code what the base already states,
+     unless you have a clear reason to doubt.
+   - **`gap` returned** (`"facts": []`): the tool automatically recorded a
+     gap. **That is the signal** that the base does not know — now go investigate in
+     code/database.
+5. **Give back what you learned** (optional, but what makes the base smarter): when you
+   discover the answer by exploring, record it with `fact add` — or `fact gap resolve`
+   to close the gap you just answered. The next agent finds it via `query` and does not
+   repeat the exploration.
 
-## O ciclo virtuoso
+## The virtuous cycle
 
 ```
-query  ──▶  (se gap)  ──▶  explorar código/banco  ──▶  fact add  ──▶  próximo query acha
+query  ──▶  (if gap)  ──▶  explore code/database  ──▶  fact add  ──▶  next query finds it
 ```
 
-Cada exploração alimenta a base e reduz o trabalho da próxima sessão.
+Each exploration feeds the base and reduces work for the next session.
 
-## Papel de cada comando
+## Role of each command
 
-- **`query`** — operação principal. Busca **semântica** por intenção.
-- **`search`** — só quando você já sabe o **termo exato** (nome de tabela, classe,
-  flag). Match de texto plano.
-- **`list`** — inspeção/manutenção da base apenas. **Nunca** para entender o sistema.
-- **`gap`** — backlog de perguntas sem resposta; o que a base ainda precisa aprender.
-- **`add` / `remove` / `stats`** — manutenção e métricas.
+- **`query`** — primary operation. **Semantic** search by intent.
+- **`search`** — only when you already know the **exact term** (table name, class,
+  flag). Plain-text match.
+- **`list`** — base inspection/maintenance only. **Never** to understand the system.
+- **`gap`** — backlog of unanswered questions; what the base still needs to learn.
+- **`add` / `remove` / `stats`** — maintenance and metrics.
 
-## Anti-padrões (não faça)
+## Anti-patterns (do not do)
 
-- ❌ `fact list` para "pegar o contexto geral".
-- ❌ Despejar a base inteira no contexto.
-- ❌ Ignorar um fato retornado e re-derivar do zero sem motivo.
-- ❌ Inventar resposta quando o resultado foi `gap` — vá verificar na fonte.
-- ❌ Consultar com pergunta vaga ("como funciona o sistema?") — refine a intenção.
+- ❌ `fact list` to "get general context".
+- ❌ Dumping the entire base into context.
+- ❌ Ignoring a returned fact and re-deriving from scratch without reason.
+- ❌ Inventing an answer when the result was `gap` — go verify at the source.
+- ❌ Querying with a vague question ("how does the system work?") — refine intent.
 
-## Referência rápida de comandos
+## Quick command reference
 
-| Comando                                                | Uso                                                                        |
+| Command                                                | Usage                                                                      |
 | ------------------------------------------------------ | -------------------------------------------------------------------------- |
-| `fact query "<pergunta>"`                              | Busca semântica; retorna fatos **ou** cria um gap.                         |
-| `fact search "<termo>"`                                | Busca por texto plano (termo exato).                                       |
-| `fact add "<fato>" [--confidence 0..1] [--tags a,b,c]` | Adiciona fato (confidence padrão `1.0`).                                   |
-| `fact gap list \| resolve \| remove`                   | Gerencia lacunas (`resolve` cria fato e fecha; `remove` só em gap aberto). |
-| `fact list [PAGE]`                                     | Lista paginada (20/página). **Manutenção apenas.**                         |
-| `fact remove <uuid>`                                   | Remove fato por UUID.                                                      |
-| `fact stats`                                           | Métricas de uso (fatos, gaps, queries).                                    |
+| `fact query "<question>"`                              | Semantic search; returns facts **or** creates a gap.                       |
+| `fact search "<term>"`                                 | Plain-text search (exact term).                                            |
+| `fact add "<fact>" [--confidence 0..1] [--tags a,b,c]` | Add fact (default confidence `1.0`).                                         |
+| `fact gap list \| resolve \| remove`                   | Manage gaps (`resolve` creates fact and closes; `remove` only on open gap). |
+| `fact list [PAGE]`                                     | Paginated list (20/page). **Maintenance only.**                            |
+| `fact remove <uuid>`                                   | Remove fact by UUID.                                                       |
+| `fact stats`                                           | Usage metrics (facts, gaps, queries).                                      |
 
-**Saída:** JSON no `stdout` por padrão; use `--text` para tabela legível. Erros vão ao
-`stderr` como `{"error": "..."}` com exit code `1`.
+**Output:** JSON on `stdout` by default; use `--text` for readable tables. Errors go to
+`stderr` as `{"error": "..."}` with exit code `1`.
