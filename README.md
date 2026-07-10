@@ -104,14 +104,40 @@ Each instance has a `config.json` file:
     "embedding_model": "embeddinggemma:latest",
     "ollama_base_url": "http://localhost:11434",
     "top_k": 10,
-    "min_relevance_score": 0.65,
+    "min_relevance_score": 0.55,
     "page_size": 20
 }
 ```
 
-- `min_relevance_score` controls when a query is considered answered vs. when a gap is created.
+- `min_relevance_score` is kept for backward compatibility; gap detection uses the relevance scale below (`none` when score &lt; 0.55).
+- Query results expose `score` (numeric) and `relevance` (qualitative match strength). Confidence in the answer is for the consumer to decide.
 - Fact and query text may be in English or Portuguese.
 - After changing `embedding_model`, run `fact reindex` to re-embed existing facts.
+
+### Query relevance
+
+| Score | Relevance | Meaning |
+|------:|-----------|---------|
+| ≥ 0.85 | `maximum` | Strongest match |
+| ≥ 0.75 | `high` | Highly relevant |
+| ≥ 0.65 | `good` | Solid match |
+| ≥ 0.55 | `low` | Weak but related |
+| &lt; 0.55 | `none` | Gap — insufficient relevance |
+
+```json
+{
+  "facts": [
+    {
+      "id": "...",
+      "text": "...",
+      "confidence": 1.0,
+      "score": 0.724,
+      "relevance": "good"
+    }
+  ],
+  "gap": null
+}
+```
 
 ## CLI reference
 

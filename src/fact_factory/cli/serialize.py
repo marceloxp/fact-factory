@@ -34,6 +34,7 @@ def facts_added_dict(facts: list[Fact]) -> dict:
 def scored_fact_dict(item: ScoredFact) -> dict:
     payload = fact_dict(item.fact)
     payload["score"] = round(item.score, 6)
+    payload["relevance"] = item.relevance.value
     return payload
 
 

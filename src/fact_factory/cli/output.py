@@ -271,7 +271,7 @@ def _text_stats(stats: Stats) -> None:
 
 def _text_scored_fact(item: ScoredFact) -> None:
     console.print()
-    console.print(f"[cyan]{item.fact.id}[/cyan]  score={item.score:.3f}")
+    console.print(f"[cyan]{item.fact.id}[/cyan]  score={item.score:.3f}  relevance={item.relevance.value}")
     console.print(item.fact.text)
 
 

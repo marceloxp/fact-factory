@@ -17,6 +17,9 @@ understand the product, query the base.
 - If `query` returns `gap` (`"facts": []`), the base **does not know**: only then
   investigate the source. When you find the answer, record with **`fact add "<fact>"`** so
   the next agent can find it.
+- Each returned fact includes `score` and `relevance` (`maximum` / `high` / `good` / `low`).
+  Gap only when relevance is `none` (score &lt; 0.55). `low` is weak evidence — corroborate
+  if it matters. Confidence in the answer is yours to decide, not the embedding's.
 - `fact search "<term>"` only when you know the **exact term** (table, class, flag).
 
 **Avoid deep discovery, don't forbid it.** What to avoid is scanning code/database for

@@ -32,8 +32,9 @@ for `fact list` as "overview" the answer is always no.)
    commission rule?", "where does flow Y start?"). Without specific intent there is nothing
    to retrieve well — neither here nor in the code.
 2. **Query** each question: `fact query "..."`.
-3. **Read** the returned facts. They come ranked by `score`, above the relevance
-   threshold. They are curated — treat them as baseline truth.
+3. **Read** the returned facts. Each match has `score` (numeric) and `relevance`
+   (qualitative). They are curated — treat them as baseline truth. **You** decide how much
+   to trust the answer; the embedding only reports how relevant the fact seems to the question.
 4. **Decide from the result:**
    - **Fact(s) returned:** use them. Do not re-derive from code what the base already states,
      unless you have a clear reason to doubt.
@@ -52,6 +53,20 @@ query  ──▶  (if gap)  ──▶  explore code/database  ──▶  fact ad
 ```
 
 Each exploration feeds the base and reduces work for the next session.
+
+## Query relevance
+
+`fact query` returns each match with `score` (internal numeric metric) and `relevance`
+(qualitative label). A `gap` is created only when every candidate has `relevance: none`
+(score &lt; 0.55). Confidence in the final answer is for **you** to judge — not the tool.
+
+| Score | Relevance | How to use |
+|------:|-----------|------------|
+| ≥ 0.85 | `maximum` | Strongest match — lean on it |
+| ≥ 0.75 | `high` | Highly relevant |
+| ≥ 0.65 | `good` | Solid match |
+| ≥ 0.55 | `low` | Weak but related — corroborate if the answer matters |
+| &lt; 0.55 | `none` | Gap — no sufficient relevance; investigate the source |
 
 ## Role of each command
 

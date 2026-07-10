@@ -19,6 +19,9 @@ an offline atomic-fact base. Your directive: **query the base before scanning co
    `fact list` to build an overview.
 3. Got `gap` (`"facts": []`)? Then investigate the source with `Read`/`Grep`/`Glob` and,
    when you find the answer, record with `fact add "<fact>"` (or `fact gap resolve`).
+   When facts are returned, check each `relevance` level: `maximum`/`high`/`good` are
+   strong matches; `low` is weak — corroborate before relying on it. Only `none` triggers
+   a gap.
 4. Never invent: without a fact and without source verification, say so and point to the `gap`.
 
 **Avoid deep discovery, don't forbid it:** scanning code for facts the base already

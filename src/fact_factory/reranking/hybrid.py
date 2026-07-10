@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from fact_factory.domain.models import Fact, ScoredFact
+from fact_factory.domain.relevance import score_to_relevance
 from fact_factory.infrastructure.ollama.client import cosine_similarity
 
 EN_STOPWORDS = {
@@ -42,7 +43,13 @@ class HybridReranker:
             cosine_score = cosine_similarity(query_embedding, fact.embedding)
             keyword_boost = _keyword_boost(question, fact.text)
             final_score = cosine_score + keyword_boost
-            candidates.append(ScoredFact(fact=fact, score=final_score))
+            candidates.append(
+                ScoredFact(
+                    fact=fact,
+                    score=final_score,
+                    relevance=score_to_relevance(final_score),
+                )
+            )
 
         candidates.sort(key=lambda item: item.score, reverse=True)
         return candidates[:top_k]

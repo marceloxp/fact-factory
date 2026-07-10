@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 from fact_factory.domain.models import Config
+from fact_factory.domain.relevance import GAP_THRESHOLD
 
 INSTANCE_DIR_NAME = ".fact-factory"
 DB_FILE_NAME = "facts.db"
@@ -30,7 +31,7 @@ def load_config(instance_dir: Path) -> Config:
         embedding_model=data.get("embedding_model", "embeddinggemma:latest"),
         ollama_base_url=data.get("ollama_base_url", "http://localhost:11434"),
         top_k=int(data.get("top_k", 10)),
-        min_relevance_score=float(data.get("min_relevance_score", 0.65)),
+        min_relevance_score=float(data.get("min_relevance_score", GAP_THRESHOLD)),
         page_size=int(data.get("page_size", 20)),
     )
 

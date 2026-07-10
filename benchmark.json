@@ -54,7 +54,7 @@
     },
     {
       "id": "f13",
-      "text": "Default config.json values: embedding_model embeddinggemma:latest, ollama_base_url http://localhost:11434, top_k 10, min_relevance_score 0.65, page_size 20."
+      "text": "Default config.json values: embedding_model embeddinggemma:latest, ollama_base_url http://localhost:11434, top_k 10, min_relevance_score 0.55, page_size 20."
     },
     {
       "id": "f14",
@@ -74,7 +74,7 @@
     },
     {
       "id": "f18",
-      "text": "fact query flow: embed question, load all active facts, hybrid rerank, return matches >= min_relevance_score, else auto-create gap."
+      "text": "fact query relevance levels from score: >=0.85 maximum, >=0.75 high, >=0.65 good, >=0.55 low, <0.55 none (gap). Each match JSON has score (numeric) and relevance (qualitative). Confidence in the answer is for the consumer; the embedding only reports relevance."
     },
     {
       "id": "f19",

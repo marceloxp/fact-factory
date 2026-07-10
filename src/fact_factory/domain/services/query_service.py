@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from fact_factory.domain.models import Config, Gap, QueryLog, QueryResult, ResultType, ScoredFact
+from fact_factory.domain.models import Config, Gap, QueryLog, QueryResult, ResultType
+from fact_factory.domain.relevance import RelevanceLevel
 from fact_factory.domain.ports import (
     EmbeddingProvider,
     FactRepository,
@@ -45,7 +46,7 @@ class QueryService:
         )
         relevant = [
             item for item in ranked
-            if item.score >= self._config.min_relevance_score
+            if item.relevance is not RelevanceLevel.NONE
         ]
 
         if relevant:
