@@ -25,22 +25,19 @@ ollama pull qwen3-embedding:0.6b
 
 ## Installation
 
+Install the `fact` CLI globally on your machine:
+
 ```bash
-git clone <repository-url>
+git clone https://github.com/marceloxp/fact-factory.git
 cd fact-factory
 uv sync
-```
-
-> Already inside a local checkout (e.g. an assistant following `templates/IA-INSTALL.md`)?
-> Skip the clone and run the commands below from the repository root.
-
-Install the `fact` command globally (recommended):
-
-```bash
 uv tool install -e .
 ```
 
 This places `fact` on your PATH (typically `~/.local/bin/fact`). Ensure that directory is in your PATH.
+
+> Already inside a local checkout (e.g. an assistant following `templates/IA-INSTALL.md`)?
+> Skip the clone and run `uv sync` and `uv tool install -e .` from the repository root.
 
 For development without a global install, use `uv run fact` instead of `fact`.
 
