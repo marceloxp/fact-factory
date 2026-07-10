@@ -1,14 +1,14 @@
 # OLLAMA — Ensure the embedding runtime (for the AI)
 
 - Default Ollama URL: `http://localhost:11434`
-- Default fact-factory embedding model: `qwen3-embedding:0.6b`.
+- Default fact-factory embedding model: `embeddinggemma:latest`.
 
 ## Testing embeddings
 
 ```bash
 curl -fsS http://localhost:11434/api/embeddings \
     -H "Content-Type: application/json" \
-    -d '{"model": "qwen3-embedding:0.6b", "prompt": "test"}'
+    -d '{"model": "embeddinggemma:latest", "prompt": "test"}'
 ```
 
 ## Installing Ollama
@@ -29,7 +29,7 @@ ollama serve
 ## Pull the model — if missing
 
 ```bash
-ollama pull qwen3-embedding:0.6b
+ollama pull embeddinggemma
 ```
 
 ## Different host/port/model

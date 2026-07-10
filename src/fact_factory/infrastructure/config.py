@@ -27,7 +27,7 @@ def load_config(instance_dir: Path) -> Config:
     path = config_path(instance_dir)
     data = json.loads(path.read_text(encoding="utf-8"))
     return Config(
-        embedding_model=data.get("embedding_model", "qwen3-embedding:0.6b"),
+        embedding_model=data.get("embedding_model", "embeddinggemma:latest"),
         ollama_base_url=data.get("ollama_base_url", "http://localhost:11434"),
         top_k=int(data.get("top_k", 10)),
         min_relevance_score=float(data.get("min_relevance_score", 0.65)),

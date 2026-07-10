@@ -12,7 +12,7 @@ class ResultType(StrEnum):
 
 @dataclass(frozen=True)
 class Config:
-    embedding_model: str = "qwen3-embedding:0.6b"
+    embedding_model: str = "embeddinggemma:latest"
     ollama_base_url: str = "http://localhost:11434"
     top_k: int = 10
     min_relevance_score: float = 0.65

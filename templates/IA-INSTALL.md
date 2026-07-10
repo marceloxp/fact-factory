@@ -50,7 +50,7 @@ Ollama).
 
 **2b — Embedding runtime (Ollama + model):** follow **`../OLLAMA.md`** — the canonical
 document that ensures Ollama responds at the expected URL and the embedding model is
-pulled (default `qwen3-embedding:0.6b`, or `embedding_model` from `config.json`).
+pulled (default `embeddinggemma:latest`, or `embedding_model` from `config.json`).
 Complete it through the `/api/embeddings` test. End-to-end validation with `fact`
 (which requires a `.fact-factory/` instance) waits for Step 6, after `fact create`.
 

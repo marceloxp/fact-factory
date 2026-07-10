@@ -13,7 +13,7 @@ The system runs fully offline using local embedding models through [Ollama](http
 Pull the default embedding model:
 
 ```bash
-ollama pull qwen3-embedding:0.6b
+ollama pull embeddinggemma
 ```
 
 > Ollama must be running whenever you `add` or `query` — both generate embeddings.
@@ -101,7 +101,7 @@ Each instance has a `config.json` file:
 
 ```json
 {
-    "embedding_model": "qwen3-embedding:0.6b",
+    "embedding_model": "embeddinggemma:latest",
     "ollama_base_url": "http://localhost:11434",
     "top_k": 10,
     "min_relevance_score": 0.65,

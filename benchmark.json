@@ -1,0 +1,230 @@
+{
+  "models": {
+    "gemma": "embeddinggemma:latest",
+    "qwen": "qwen3-embedding:0.6b"
+  },
+  "facts": [
+    {
+      "id": "f01",
+      "text": "Fact-Factory is an offline knowledge base of atomic facts for AI agents to query before deep code or database exploration."
+    },
+    {
+      "id": "f02",
+      "text": "Source code lives in src/fact_factory/ with four packages: domain, infrastructure, reranking, and cli."
+    },
+    {
+      "id": "f03",
+      "text": "Business logic belongs in domain/ (models, ports, services) and must not import Typer, sqlite3, or httpx directly."
+    },
+    {
+      "id": "f04",
+      "text": "Infrastructure adapters in infrastructure/ implement SQLite persistence, Ollama embeddings, instance discovery, and config loading."
+    },
+    {
+      "id": "f05",
+      "text": "The CLI in cli/ only parses arguments and delegates to domain services; it must not contain business rules."
+    },
+    {
+      "id": "f06",
+      "text": "build_context() in app.py is the composition root that wires repositories, Ollama client, and domain services for each command."
+    },
+    {
+      "id": "f07",
+      "text": "The fact CLI command is registered in pyproject.toml as fact_factory.cli.main:app under [project.scripts]."
+    },
+    {
+      "id": "f08",
+      "text": "Dependencies and execution use uv exclusively; requires-python is >= 3.13 in pyproject.toml."
+    },
+    {
+      "id": "f09",
+      "text": "Install the CLI globally with: uv tool install -e . (places fact on PATH, typically ~/.local/bin/fact)."
+    },
+    {
+      "id": "f10",
+      "text": "Each instance is a .fact-factory/ directory in a project, containing facts.db (SQLite) and config.json."
+    },
+    {
+      "id": "f11",
+      "text": "fact create makes .fact-factory/ in the current directory and fails with InstanceAlreadyExistsError if it already exists."
+    },
+    {
+      "id": "f12",
+      "text": "Instance discovery in infrastructure/discovery.py walks up from cwd to $HOME seeking .fact-factory/; fallback is ~/.fact-factory/."
+    },
+    {
+      "id": "f13",
+      "text": "Default config.json values: embedding_model embeddinggemma:latest, ollama_base_url http://localhost:11434, top_k 10, min_relevance_score 0.65, page_size 20."
+    },
+    {
+      "id": "f14",
+      "text": "Facts table columns: id (UUID), text, embedding (float32 BLOB), confidence, tags (JSON array), created_at (ISO timestamp)."
+    },
+    {
+      "id": "f15",
+      "text": "Embeddings are generated once via Ollama POST /api/embeddings at fact creation and stored permanently in SQLite."
+    },
+    {
+      "id": "f16",
+      "text": "Gaps table stores unanswered questions with id, question, created_at, optional resolved_at, and optional resolved_fact_id."
+    },
+    {
+      "id": "f17",
+      "text": "query_logs records every fact query with query_text, created_at, result_type (fact or gap), and result_ids (JSON array)."
+    },
+    {
+      "id": "f18",
+      "text": "fact query flow: embed question, load all facts, hybrid rerank, return matches >= min_relevance_score, else auto-create gap."
+    },
+    {
+      "id": "f19",
+      "text": "HybridReranker in reranking/hybrid.py scores facts as cosine_similarity + keyword_boost (max 0.15) with EN/PT stopwords."
+    },
+    {
+      "id": "f20",
+      "text": "Vector search v1 loads all embeddings into memory and computes cosine similarity with NumPy; no ANN index yet."
+    },
+    {
+      "id": "f21",
+      "text": "Repository contracts are Protocol classes in domain/ports.py (FactRepository, GapRepository, QueryLogRepository, etc.)."
+    },
+    {
+      "id": "f22",
+      "text": "SQLite implementation is in infrastructure/sqlite/repositories.py; schema DDL is in infrastructure/sqlite/schema.py."
+    },
+    {
+      "id": "f23",
+      "text": "Ollama client is OllamaEmbeddingClient in infrastructure/ollama/client.py; failures raise EmbeddingError with actionable messages."
+    },
+    {
+      "id": "f24",
+      "text": "Commands add, query, search, list, remove, stats, and all gap subcommands output JSON to stdout by default."
+    },
+    {
+      "id": "f25",
+      "text": "Pass --text to add, query, search, list, remove, stats, or gap commands for human-readable Rich table output."
+    },
+    {
+      "id": "f26",
+      "text": "JSON errors print to stderr as {\"error\": \"message\"} with exit code 1; success JSON prints to stdout."
+    },
+    {
+      "id": "f27",
+      "text": "fact add accepts positional fact text plus optional --confidence (0-1, default 1.0) and --tags (comma-separated)."
+    },
+    {
+      "id": "f28",
+      "text": "fact remove deletes a fact by UUID and sets resolved_fact_id to NULL on gaps that referenced it."
+    },
+    {
+      "id": "f29",
+      "text": "fact gap resolve creates a new fact and marks the gap resolved; fact gap remove only works on open (unresolved) gaps."
+    },
+    {
+      "id": "f30",
+      "text": "System strings (CLI help, errors, README) are English; fact text and queries may be English or Portuguese. fact export is not implemented."
+    }
+  ],
+  "queries": [
+    {
+      "id": "q01",
+      "question": "What is Fact-Factory?",
+      "expected_fact_ids": ["f01"]
+    },
+    {
+      "id": "q02",
+      "question": "Where does the source code live?",
+      "expected_fact_ids": ["f02"]
+    },
+    {
+      "id": "q03",
+      "question": "Can domain services import httpx directly?",
+      "expected_fact_ids": ["f03"]
+    },
+    {
+      "id": "q04",
+      "question": "Where is SQLite persistence implemented?",
+      "expected_fact_ids": ["f22"]
+    },
+    {
+      "id": "q05",
+      "question": "How do I install the fact command globally?",
+      "expected_fact_ids": ["f09"]
+    },
+    {
+      "id": "q06",
+      "question": "What files are inside a .fact-factory instance?",
+      "expected_fact_ids": ["f10"]
+    },
+    {
+      "id": "q07",
+      "question": "How does instance discovery find .fact-factory?",
+      "expected_fact_ids": ["f12"]
+    },
+    {
+      "id": "q08",
+      "question": "What is the default embedding model in config.json?",
+      "expected_fact_ids": ["f13"]
+    },
+    {
+      "id": "q09",
+      "question": "When are embeddings generated for a fact?",
+      "expected_fact_ids": ["f15"]
+    },
+    {
+      "id": "q10",
+      "question": "What happens when fact query finds no relevant facts?",
+      "expected_fact_ids": ["f18"]
+    },
+    {
+      "id": "q11",
+      "question": "How does HybridReranker score facts?",
+      "expected_fact_ids": ["f19"]
+    },
+    {
+      "id": "q12",
+      "question": "Does vector search use an ANN index?",
+      "expected_fact_ids": ["f20"]
+    },
+    {
+      "id": "q13",
+      "question": "What is the default CLI output format?",
+      "expected_fact_ids": ["f24"]
+    },
+    {
+      "id": "q14",
+      "question": "How do I get human-readable CLI tables?",
+      "expected_fact_ids": ["f25"]
+    },
+    {
+      "id": "q15",
+      "question": "Como adicionar um fato com tags e confidence?",
+      "expected_fact_ids": ["f27"]
+    },
+    {
+      "id": "q16",
+      "question": "What does fact remove do to gaps that referenced the fact?",
+      "expected_fact_ids": ["f28"]
+    },
+    {
+      "id": "q17",
+      "question": "What is the difference between gap resolve and gap remove?",
+      "expected_fact_ids": ["f29"]
+    },
+    {
+      "id": "q18",
+      "question": "O texto dos fatos pode ser em português?",
+      "expected_fact_ids": ["f30"]
+    },
+    {
+      "id": "q19",
+      "question": "Where is the fact CLI entry point registered?",
+      "expected_fact_ids": ["f07"]
+    },
+    {
+      "id": "q20",
+      "question": "What does build_context do?",
+      "expected_fact_ids": ["f06"]
+    }
+  ]
+}
